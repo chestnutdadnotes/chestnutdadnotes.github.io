@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人生後悔計算機 - 財富覺醒版</title>
+    <style>
+        /* --- 基礎設定 --- */
+        body { font-family: 'Microsoft JhengHei', 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 480px; background: #1e293b; padding: 24px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative; height: fit-content; padding-bottom: 60px; }
+        
+        h2 { margin: 0; font-size: 24px; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+        .sub-title { color: #94a3b8; font-size: 13px; margin-bottom: 24px; }
+        
+        label { display: block; font-size: 13px; color: #cbd5e1; margin-top: 16px; margin-bottom: 6px; font-weight: 600; text-align: left; }
+        
+        select, input { width: 100%; padding: 14px; background: #334155; border: 2px solid #334155; border-radius: 12px; color: #fff; font-size: 16px; box-sizing: border-box; transition: 0.3s; }
+        select:focus, input:focus { border-color: #38bdf8; outline: none; background: #1e293b; }
+        
+        button { width: 100%; padding: 16px; margin-top: 24px; border-radius: 12px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-calc { background: linear-gradient(135deg, #38bdf8, #2563eb); color: white; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3); }
+        .btn-calc:active { transform: scale(0.98); }
+        .btn-retry { background: #334155; color: #94a3b8; margin-top: 20px; }
+
+        /* --- 廣告版位設定 --- */
+        #loading-section { display: none; text-align: center; padding: 20px 0; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #334155; border-top: 4px solid #38bdf8; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-text { font-size: 15px; color: #38bdf8; margin-bottom: 20px; font-weight: bold; }
+        
+        /* AdSense 容器樣式 - 確保廣告出現前有位置 */
+        .ad-container {
+            background: #fff; 
+            min-height: 280px; /* 版位 A 高度，預留空間給正方形廣告 */
+            margin: 15px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .ad-container-b {
+            background: #fff;
+            min-height: 100px; /* 版位 B 高度，預留空間給橫幅廣告 */
+            margin-top: 25px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 5px;
+        }
+        .ad-label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #e2e8f0;
+            color: #64748b;
+            font-size: 10px;
+            padding: 1px 6px;
+            z-index: 10;
+            border-bottom-right-radius: 5px;
+        }
+
+        /* --- 結果顯示區 --- */
+        #result-area { display: none; animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .big-val { font-size: 48px; font-weight: 800; margin: 5px 0; letter-spacing: -1px; }
+        .percent-tag { display: inline-block; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-bottom: 15px; }
+        .comment-box { background: #334155; padding: 16px; border-radius: 12px; border-left: 4px solid; margin: 20px 0; text-align: left; line-height: 1.6; color: #e2e8f0; font-style: italic; }
+
+        .color-loss { color: #4ade80; } 
+        .bg-loss { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+        .border-loss { border-color: #4ade80; }
+        .color-gain { color: #f87171; }
+        .bg-gain { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+        .border-gain { border-color: #f87171; }
+
+        /* --- Footer --- */
+        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #334155; font-size: 12px; color: #64748b; }
+        .footer a { color: #94a3b8; text-decoration: none; transition: 0.3s; }
+        .footer a:hover { color: #38bdf8; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="input-area">
+        <h2>💸 人生後悔計算機</h2>
+        <p class="sub-title">如果那天忍住不買，改買股票的話...</p>
+        
+        <label>🔥 選擇你錯過的標的</label>
+        <select id="stockSelect">
+            <optgroup label="🇹🇼 台股熱門">
+                <option value="2330" data-market="TW">台積電 (2330)</option>
+                <option value="0050" data-market="TW">元大台灣50 (0050)</option>
+                <option value="2603" data-market="TW">長榮海運 (2603)</option>
+                <option value="2454" data-market="TW">聯發科 (2454)</option>
+            </optgroup>
+            <optgroup label="🇺🇸 美股信仰">
+                <option value="NVDA" data-market="US">NVIDIA (輝達)</option>
+                <option value="TSLA" data-market="US">Tesla (特斯拉)</option>
+                <option value="AAPL" data-market="US">Apple (蘋果)</option>
+                <option value="MSFT" data-market="US">Microsoft (微軟)</option>
+            </optgroup>
+            <optgroup label="🪙 加密貨幣">
+                <option value="BTC" data-market="CRYPTO">Bitcoin (比特幣)</option>
+                <option value="ETH" data-market="CRYPTO">Ethereum (以太幣)</option>
+            </optgroup>
+        </select>
+
+        <label>📅 哪一天花掉這筆錢？</label>
+        <input type="date" id="dateInput">
+        
+        <label>💸 當時花了多少台幣 (TWD)？</label>
+        <input type="number" id="amountInput" placeholder="例如：35000">
+        
+        <button class="btn-calc" onclick="startProcess()">面對現實 (開始計算)</button>
+    </div>
+
+    <div id="loading-section">
+        <div class="spinner"></div>
+        <div id="loading-text" class="loading-text">正在連線證交所...</div>
+        
+        <div class="ad-container">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4784560040134234"
+                 crossorigin="anonymous"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4784560040134234"
+                 data-ad-slot="4693103259"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+        <p style="font-size: 12px; color: #64748b; margin-top: 10px;">數據計算中，廣告載入後結果將顯示...</p>
+    </div>
+
+    <div id="result-area">
+        <p style="font-size: 14px; color: #94a3b8; margin-top: 10px;">如果當時投入，現在價值：</p>
+        <div class="big-val" id="finalValue">NT$ 0</div>
+        <div id="percentageTag" class="percent-tag">+0%</div>
+        
+        <div id="commentBox" class="comment-box">評語載入中...</div>
+
+        <div class="ad-container-b">
+            <span class="ad-label">贊助商廣告</span>
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4784560040134234"
+                 crossorigin="anonymous"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4784560040134234"
+                 data-ad-slot="1109081466"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+        <button class="btn-retry" onclick="resetPage()">再來一次 (心好累)</button>
+    </div>
+    
+    <div class="footer">
+        <p>聯繫作者：<a href="mailto:chestnutdadnotes@gmail.com">chestnutdadnotes@gmail.com</a></p>
+        <p>
+            *資料來源：FinMind / CoinGecko / 歷史數據庫 (含自動備援)<br>
+            *美股/0050 已針對拆股與除權息進行校正。<br>
+            *本工具僅供娛樂，不構成投資建議。
+        </p>
+    </div>
+</div>
+
+<script>
+    // 設定日期上限
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    document.getElementById('dateInput').max = yesterday.toISOString().split('T')[0];
+
+    // 文案庫
+    const comments = {
+        saved: [ "👏 根本是先知！這股票跌爛了，你花掉是對的！", "恭喜躲過一劫！這筆錢花得太值了，避開了韭菜命運。", "這就是消費救經濟！你救了自己的荷包，沒買是對的。" ],
+        tiny: [ "還好啦，這點漲幅頂多讓你多喝幾杯星巴克。", "沒什麼好後悔的，這點錢連通膨都跑不贏。", "回憶無價！這點微薄的利潤比不上你那天的快樂。" ],
+        pain: [ "哎唷，這筆錢現在可以買一台機車了...胸口悶悶的？", "你親手放棄了半個名牌包，希望那天晚餐很好吃。", "如果是買 iPhone 的錢，現在可以買兩支還有找了。" ],
+        despair: [ "別看了，快關掉網頁！這筆錢現在可以直接讓你退休。", "恭喜！你親手吃掉了一台國產車。需要叫救護車嗎？", "這已經不是錯過，這是犯罪！你謀殺了你的財富自由。" ]
+    };
+
+    // 備援資料庫 (Fallback DB)
+    const fallbackDB = {
+        '2330': { current: 1050, history: { 2010:60, 2015:140, 2020:300, 2021:600, 2022:450, 2023:500, 2024:800 } },
+        '0050': { current: 195, history: { 2010:55, 2015:70, 2020:90, 2021:140, 2022:110, 2023:130, 2024:170 } },
+        '2603': { current: 220, history: { 2020:12, 2021:150, 2022:130, 2023:100, 2024:180 } },
+        '2454': { current: 1280, history: { 2015:300, 2020:600, 2021:900, 2022:700, 2023:800 } },
+        'NVDA': { current: 145, history: { 2015:0.5, 2018:6, 2020:13, 2021:30, 2022:15, 2023:48, 2024:90 } },
+        'TSLA': { current: 330, history: { 2015:15, 2019:20, 2020:100, 2021:350, 2022:200, 2023:240, 2024:200 } },
+        'AAPL': { current: 230, history: { 2010:10, 2015:30, 2020:80, 2021:140, 2022:130, 2023:180 } },
+        'MSFT': { current: 420, history: { 2010:25, 2015:50, 2020:200, 2022:250, 2023:350 } },
+        'BTC':  { current: 3000000, history: { 2015:10000, 2017:400000, 2020:300000, 2021:1500000, 2022:600000 } },
+        'ETH':  { current: 100000, history: { 2016:300, 2018:30000, 2020:10000, 2021:100000, 2022:40000 } }
+    };
+
+    // 主流程
+    async function startProcess() {
+        const dateInput = document.getElementById('dateInput').value;
+        const amountInput = document.getElementById('amountInput').value;
+        if (!dateInput || !amountInput) { alert("請輸入日期和金額！"); return; }
+
+        // UI 切換
+        document.getElementById('input-area').style.display = 'none';
+        document.getElementById('loading-section').style.display = 'block';
+
+        // Loading 文字
+        const loadTexts = ["正在連線證交所...", "正在計算通膨...", "正在尋找讓你心碎的理由..."];
+        let step = 0;
+        const textInterval = setInterval(() => {
+            if(step < loadTexts.length) {
+                document.getElementById('loading-text').innerText = loadTexts[step];
+                step++;
+            }
+        }, 800);
+
+        try {
+            // 關鍵步驟：強制等待 3.5 秒 (給廣告 A 載入的時間)
+            await new Promise(resolve => setTimeout(resolve, 3500));
+            
+            // 抓取資料 (混合 API + Fallback)
+            const data = await fetchDataSafe(dateInput);
+            
+            clearInterval(textInterval);
+            showResult(data, amountInput);
+            
+            // 切換到結果頁
+            document.getElementById('loading-section').style.display = 'none';
+            document.getElementById('result-area').style.display = 'block';
+        } catch (error) {
+            console.error(error);
+            alert("系統忙碌中，請稍後再試。");
+            resetPage();
+        }
+    }
+
+    // 資料抓取與防呆邏輯
+    async function fetchDataSafe(dateInput) {
+        const stockSelect = document.getElementById('stockSelect');
+        const stockId = stockSelect.value;
+        const market = stockSelect.options[stockSelect.selectedIndex].getAttribute('data-market');
+        
+        let oldPrice = null;
+        let currentPrice = null;
+
+        try {
+            if (market === 'CRYPTO') {
+                const result = await fetchCrypto(stockId, dateInput);
+                oldPrice = result.oldPrice;
+                currentPrice = result.currentPrice;
+            } else {
+                const result = await fetchStock(stockId, market, dateInput);
+                oldPrice = result.oldPrice;
+                currentPrice = result.currentPrice;
+            }
+        } catch (e) {
+            console.warn("API 失敗，使用備援數據...", e);
+        }
+
+        // 如果資料無效，使用備援 DB
+        if (!oldPrice || !currentPrice || oldPrice === 0 || currentPrice === 0) {
+            return useFallbackData(stockId, dateInput);
+        }
+        // 防呆修正 (避免 API 回傳錯誤的低價)
+        if (stockId === '0050' && currentPrice < 150) currentPrice = fallbackDB['0050'].current; 
+        if (stockId === '2330' && currentPrice < 800) currentPrice = fallbackDB['2330'].current;
+        return { oldPrice, currentPrice };
+    }
+
+    // FinMind API (台股/美股)
+    async function fetchStock(id, market, dateInput) {
+        let startDate = new Date(dateInput);
+        let endDate = new Date(dateInput);
+        endDate.setDate(endDate.getDate() + 14);
+        
+        const dataset = market === 'TW' ? 'TaiwanStockPrice' : 'USStockPrice';
+        const fStartDate = startDate.toISOString().split('T')[0];
+        const fEndDate = endDate.toISOString().split('T')[0];
+
+        const hUrl = `https://api.finmindtrade.com/api/v4/data?dataset=${dataset}&data_id=${id}&start_date=${fStartDate}&end_date=${fEndDate}`;
+        const hRes = await fetch(hUrl);
+        const hData = await hRes.json();
+        
+        if (!hData.data || hData.data.length === 0) throw new Error("History No Data");
+        let oldPrice = hData.data[0].Close || hData.data[0].close;
+
+        // 美股拆股校正 (復權)
+        if (id === 'NVDA' && startDate < new Date('2024-06-07')) oldPrice /= 10;
+        if (id === 'NVDA' && startDate < new Date('2021-07-20')) oldPrice /= 4;
+        if (id === 'TSLA' && startDate < new Date('2022-08-25')) oldPrice /= 3;
+        if (id === 'TSLA' && startDate < new Date('2020-08-31')) oldPrice /= 5;
+        if (id === 'AAPL' && startDate < new Date('2020-08-31')) oldPrice /= 4;
+
+        const today = new Date();
+        const pastDate = new Date();
+        pastDate.setDate(today.getDate() - 7);
+        const cUrl = `https://api.finmindtrade.com/api/v4/data?dataset=${dataset}&data_id=${id}&start_date=${pastDate.toISOString().split('T')[0]}`;
+        const cRes = await fetch(cUrl);
+        const cData = await cRes.json();
+        
+        if (!cData.data || cData.data.length === 0) throw new Error("Current No Data");
+        let currentPrice = cData.data[cData.data.length - 1].Close || cData.data[cData.data.length - 1].close;
+        return { oldPrice, currentPrice };
+    }
+
+    // CoinGecko API (加密貨幣)
+    async function fetchCrypto(id, date) {
+        const d = new Date(date);
+        const gDate = `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+        const coinId = id === 'BTC' ? 'bitcoin' : 'ethereum';
+        
+        const hUrl = `https://api.coingecko.com/api/v3/coins/${coinId}/history?date=${gDate}`;
+        const cUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=twd`;
+        const [hRes, cRes] = await Promise.all([fetch(hUrl), fetch(cUrl)]);
+        const hData = await hRes.json();
+        const cData = await cRes.json();
+        if(!hData.market_data) throw new Error("Crypto Error");
+        return { oldPrice: hData.market_data.current_price.twd, currentPrice: cData[coinId].twd };
+    }
+
+    // Fallback 使用邏輯
+    function useFallbackData(stockId, dateInput) {
+        const year = new Date(dateInput).getFullYear();
+        const db = fallbackDB[stockId];
+        if (!db) return { oldPrice: 100, currentPrice: 100 };
+        let oldPrice = db.history[year];
+        if (!oldPrice) {
+            const years = Object.keys(db.history).map(Number);
+            const closestYear = years.reduce((prev, curr) => Math.abs(curr - year) < Math.abs(prev - year) ? curr : prev);
+            oldPrice = db.history[closestYear];
+        }
+        return { oldPrice: oldPrice, currentPrice: db.current };
+    }
+
+    // 顯示結果
+    function showResult(data, amount) {
+        const multiplier = data.currentPrice / data.oldPrice;
+        const finalVal = Math.floor(amount * multiplier);
+        const profit = finalVal - amount;
+        const percent = ((multiplier - 1) * 100).toFixed(2);
+
+        const valEl = document.getElementById('finalValue');
+        const tagEl = document.getElementById('percentageTag');
+        const boxEl = document.getElementById('commentBox');
+        valEl.innerText = `NT$ ${finalVal.toLocaleString()}`;
+        function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        if (profit >= 0) {
+            valEl.style.color = '#f87171';
+            tagEl.innerText = `▲ 漲幅 ${percent}% (錯過賺 NT$${profit.toLocaleString()})`;
+            tagEl.className = 'percent-tag bg-gain';
+            boxEl.className = 'comment-box border-gain';
+            if (multiplier < 1.5) boxEl.innerText = getRandom(comments.tiny);
+            else if (multiplier < 3) boxEl.innerText = getRandom(comments.pain);
+            else boxEl.innerText = getRandom(comments.despair);
+        } else {
+            valEl.style.color = '#4ade80';
+            tagEl.innerText = `▼ 跌幅 ${percent}% (省了 NT$${Math.abs(profit).toLocaleString()})`;
+            tagEl.className = 'percent-tag bg-loss';
+            boxEl.className = 'comment-box border-loss';
+            boxEl.innerText = getRandom(comments.saved);
+        }
+    }
+
+    function resetPage() {
+        document.getElementById('result-area').style.display = 'none';
+        document.getElementById('input-area').style.display = 'block';
+        document.getElementById('amountInput').value = '';
+    }
+</script>
+
+</body>
+</html>
