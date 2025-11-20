@@ -206,4 +206,183 @@
         'AAPL': { current: 230, history: { 2010:10, 2015:30, 2020:80, 2021:140, 2022:130, 2023:180 } },
         'MSFT': { current: 420, history: { 2010:25, 2015:50, 2020:200, 2022:250, 2023:350 } },
         'BTC':  { current: 3000000, history: { 2015:10000, 2017:400000, 2020:300000, 2021:1500000, 2022:600000 } },
-        'ETH':  { current: 100000, history: { 2016:300, 2018:30000, 2020:1
+        'ETH':  { current: 100000, history: { 2016:300, 2018:30000, 2020:10000, 2021:100000, 2022:40000 } }
+    };
+
+    // 主流程
+    async function startProcess() {
+        const dateInput = document.getElementById('dateInput').value;
+        const amountInput = document.getElementById('amountInput').value;
+        if (!dateInput || !amountInput) { alert("請輸入日期和金額！"); return; }
+
+        // UI 切換
+        document.getElementById('input-area').style.display = 'none';
+        document.getElementById('loading-section').style.display = 'block';
+
+        // Loading 文字
+        const loadTexts = ["正在連線證交所...", "正在計算通膨...", "正在尋找讓你心碎的理由..."];
+        let step = 0;
+        const textInterval = setInterval(() => {
+            if(step < loadTexts.length) {
+                document.getElementById('loading-text').innerText = loadTexts[step];
+                step++;
+            }
+        }, 800);
+
+        try {
+            // 關鍵步驟：強制等待 3.5 秒 (給廣告 A 載入的時間)
+            await new Promise(resolve => setTimeout(resolve, 3500));
+            
+            // 抓取資料 (混合 API + Fallback)
+            const data = await fetchDataSafe(dateInput);
+            
+            clearInterval(textInterval);
+            showResult(data, amountInput);
+            
+            // 切換到結果頁
+            document.getElementById('loading-section').style.display = 'none';
+            document.getElementById('result-area').style.display = 'block';
+        } catch (error) {
+            console.error(error);
+            alert("系統忙碌中，請稍後再試。");
+            resetPage();
+        }
+    }
+
+    // 資料抓取與防呆邏輯
+    async function fetchDataSafe(dateInput) {
+        const stockSelect = document.getElementById('stockSelect');
+        const stockId = stockSelect.value;
+        const market = stockSelect.options[stockSelect.selectedIndex].getAttribute('data-market');
+        
+        let oldPrice = null;
+        let currentPrice = null;
+
+        try {
+            if (market === 'CRYPTO') {
+                const result = await fetchCrypto(stockId, dateInput);
+                oldPrice = result.oldPrice;
+                currentPrice = result.currentPrice;
+            } else {
+                const result = await fetchStock(stockId, market, dateInput);
+                oldPrice = result.oldPrice;
+                currentPrice = result.currentPrice;
+            }
+        } catch (e) {
+            console.warn("API 失敗，使用備援數據...", e);
+        }
+
+        // 如果資料無效，使用備援 DB
+        if (!oldPrice || !currentPrice || oldPrice === 0 || currentPrice === 0) {
+            return useFallbackData(stockId, dateInput);
+        }
+        // 防呆修正 (避免 API 回傳錯誤的低價)
+        if (stockId === '0050' && currentPrice < 150) currentPrice = fallbackDB['0050'].current; 
+        if (stockId === '2330' && currentPrice < 800) currentPrice = fallbackDB['2330'].current;
+        return { oldPrice, currentPrice };
+    }
+
+    // FinMind API (台股/美股)
+    async function fetchStock(id, market, dateInput) {
+        let startDate = new Date(dateInput);
+        let endDate = new Date(dateInput);
+        endDate.setDate(endDate.getDate() + 14);
+        
+        const dataset = market === 'TW' ? 'TaiwanStockPrice' : 'USStockPrice';
+        const fStartDate = startDate.toISOString().split('T')[0];
+        const fEndDate = endDate.toISOString().split('T')[0];
+
+        const hUrl = `https://api.finmindtrade.com/api/v4/data?dataset=${dataset}&data_id=${id}&start_date=${fStartDate}&end_date=${fEndDate}`;
+        const hRes = await fetch(hUrl);
+        const hData = await hRes.json();
+        
+        if (!hData.data || hData.data.length === 0) throw new Error("History No Data");
+        let oldPrice = hData.data[0].Close || hData.data[0].close;
+
+        // 美股拆股校正 (復權)
+        if (id === 'NVDA' && startDate < new Date('2024-06-07')) oldPrice /= 10;
+        if (id === 'NVDA' && startDate < new Date('2021-07-20')) oldPrice /= 4;
+        if (id === 'TSLA' && startDate < new Date('2022-08-25')) oldPrice /= 3;
+        if (id === 'TSLA' && startDate < new Date('2020-08-31')) oldPrice /= 5;
+        if (id === 'AAPL' && startDate < new Date('2020-08-31')) oldPrice /= 4;
+
+        const today = new Date();
+        const pastDate = new Date();
+        pastDate.setDate(today.getDate() - 7);
+        const cUrl = `https://api.finmindtrade.com/api/v4/data?dataset=${dataset}&data_id=${id}&start_date=${pastDate.toISOString().split('T')[0]}`;
+        const cRes = await fetch(cUrl);
+        const cData = await cRes.json();
+        
+        if (!cData.data || cData.data.length === 0) throw new Error("Current No Data");
+        let currentPrice = cData.data[cData.data.length - 1].Close || cData.data[cData.data.length - 1].close;
+        return { oldPrice, currentPrice };
+    }
+
+    // CoinGecko API (加密貨幣)
+    async function fetchCrypto(id, date) {
+        const d = new Date(date);
+        const gDate = `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+        const coinId = id === 'BTC' ? 'bitcoin' : 'ethereum';
+        
+        const hUrl = `https://api.coingecko.com/api/v3/coins/${coinId}/history?date=${gDate}`;
+        const cUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=twd`;
+        const [hRes, cRes] = await Promise.all([fetch(hUrl), fetch(cUrl)]);
+        const hData = await hRes.json();
+        const cData = await cRes.json();
+        if(!hData.market_data) throw new Error("Crypto Error");
+        return { oldPrice: hData.market_data.current_price.twd, currentPrice: cData[coinId].twd };
+    }
+
+    // Fallback 使用邏輯
+    function useFallbackData(stockId, dateInput) {
+        const year = new Date(dateInput).getFullYear();
+        const db = fallbackDB[stockId];
+        if (!db) return { oldPrice: 100, currentPrice: 100 };
+        let oldPrice = db.history[year];
+        if (!oldPrice) {
+            const years = Object.keys(db.history).map(Number);
+            const closestYear = years.reduce((prev, curr) => Math.abs(curr - year) < Math.abs(prev - year) ? curr : prev);
+            oldPrice = db.history[closestYear];
+        }
+        return { oldPrice: oldPrice, currentPrice: db.current };
+    }
+
+    // 顯示結果
+    function showResult(data, amount) {
+        const multiplier = data.currentPrice / data.oldPrice;
+        const finalVal = Math.floor(amount * multiplier);
+        const profit = finalVal - amount;
+        const percent = ((multiplier - 1) * 100).toFixed(2);
+
+        const valEl = document.getElementById('finalValue');
+        const tagEl = document.getElementById('percentageTag');
+        const boxEl = document.getElementById('commentBox');
+        valEl.innerText = `NT$ ${finalVal.toLocaleString()}`;
+        function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        if (profit >= 0) {
+            valEl.style.color = '#f87171';
+            tagEl.innerText = `▲ 漲幅 ${percent}% (錯過賺 NT$${profit.toLocaleString()})`;
+            tagEl.className = 'percent-tag bg-gain';
+            boxEl.className = 'comment-box border-gain';
+            if (multiplier < 1.5) boxEl.innerText = getRandom(comments.tiny);
+            else if (multiplier < 3) boxEl.innerText = getRandom(comments.pain);
+            else boxEl.innerText = getRandom(comments.despair);
+        } else {
+            valEl.style.color = '#4ade80';
+            tagEl.innerText = `▼ 跌幅 ${percent}% (省了 NT$${Math.abs(profit).toLocaleString()})`;
+            tagEl.className = 'percent-tag bg-loss';
+            boxEl.className = 'comment-box border-loss';
+            boxEl.innerText = getRandom(comments.saved);
+        }
+    }
+
+    function resetPage() {
+        document.getElementById('result-area').style.display = 'none';
+        document.getElementById('input-area').style.display = 'block';
+        document.getElementById('amountInput').value = '';
+    }
+</script>
+
+</body>
+</html>
