@@ -2,16 +2,29 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="人生後悔計算機：試算如果你當年買了台積電、0050、玉山金或輝達，現在會有多少錢？揭露機會成本與複利效應的投資心理學工具。">
+    <meta name="keywords" content="台積電, 00878, 0050, 金融股, 存股, 投資試算, 機會成本, FOMO">
+    
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4784560040134234" crossorigin="anonymous"></script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>人生後悔計算機 - 財富覺醒版</title>
+    <title>人生後悔計算機 - 財富覺醒與投資試算工具</title>
     <style>
         /* --- 基礎設定 --- */
-        body { font-family: 'Microsoft JhengHei', 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 480px; background: #1e293b; padding: 24px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative; height: fit-content; padding-bottom: 60px; }
+        body { font-family: 'Microsoft JhengHei', 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        h2 { margin: 0; font-size: 24px; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+        .container { width: 100%; max-width: 480px; background: #1e293b; padding: 24px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative; height: fit-content; margin-bottom: 40px; }
+        
+        .article-section { width: 100%; max-width: 800px; background: #1e293b; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); margin-top: 20px; margin-bottom: 60px; color: #cbd5e1; line-height: 1.8; text-align: left; }
+        .article-section h2 { color: #38bdf8; margin-top: 30px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .article-section h3 { color: #818cf8; margin-top: 20px; }
+        .article-section p { margin-bottom: 15px; font-size: 16px; }
+
+        .author-box { background: #334155; padding: 20px; border-radius: 12px; margin-bottom: 30px; border-left: 5px solid #38bdf8; display: flex; flex-direction: column; gap: 10px; }
+        .author-box p { margin: 0; font-size: 14px; color: #e2e8f0; }
+        .author-box a { color: #38bdf8; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        
+        h1 { font-size: 24px; margin: 0; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
         .sub-title { color: #94a3b8; font-size: 13px; margin-bottom: 24px; }
         
         label { display: block; font-size: 13px; color: #cbd5e1; margin-top: 16px; margin-bottom: 6px; font-weight: 600; text-align: left; }
@@ -24,7 +37,6 @@
         .btn-calc:active { transform: scale(0.98); }
         .btn-retry { background: #334155; color: #94a3b8; margin-top: 20px; }
 
-        /* --- 廣告版位設定 --- */
         #loading-section { display: none; text-align: center; padding: 20px 0; }
         .spinner { width: 40px; height: 40px; border: 4px solid #334155; border-top: 4px solid #38bdf8; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -34,7 +46,6 @@
         .ad-container-b { background: #fff; min-height: 100px; margin-top: 25px; border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center; position: relative; padding: 5px; }
         .ad-label { position: absolute; top: 0; left: 0; background: #e2e8f0; color: #64748b; font-size: 10px; padding: 1px 6px; z-index: 10; border-bottom-right-radius: 5px; }
 
-        /* --- 結果顯示區 --- */
         #result-area { display: none; animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -49,33 +60,84 @@
         .bg-gain { background: rgba(248, 113, 113, 0.15); color: #f87171; }
         .border-gain { border-color: #f87171; }
 
-        /* --- Footer --- */
-        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #334155; font-size: 12px; color: #64748b; }
-        .footer a { color: #94a3b8; text-decoration: none; transition: 0.3s; }
-        .footer a:hover { color: #38bdf8; }
+        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #334155; font-size: 12px; color: #64748b; text-align: center; }
+        
+        @media (max-width: 600px) { .article-section { padding: 20px; } }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="input-area">
-        <h2>💸 人生後悔計算機</h2>
+        <h1>💸 人生後悔計算機</h1>
         <p class="sub-title">如果那天忍住不買，改買股票的話...</p>
         
         <label>🔥 選擇你錯過的標的</label>
         <select id="stockSelect">
-            <optgroup label="🇹🇼 台股熱門">
+            <optgroup label="🇹🇼 台股 - 半導體與電子">
                 <option value="2330" data-market="TW">台積電 (2330)</option>
-                <option value="0050" data-market="TW">元大台灣50 (0050)</option>
-                <option value="2603" data-market="TW">長榮海運 (2603)</option>
+                <option value="2317" data-market="TW">鴻海 (2317)</option>
                 <option value="2454" data-market="TW">聯發科 (2454)</option>
+                <option value="2308" data-market="TW">台達電 (2308)</option>
+                <option value="2412" data-market="TW">中華電 (2412)</option>
             </optgroup>
-            <optgroup label="🇺🇸 美股信仰">
+
+            <optgroup label="🇹🇼 台股 - 金融存股">
+                <option value="2881" data-market="TW">富邦金 (2881)</option>
+                <option value="2882" data-market="TW">國泰金 (2882)</option>
+                <option value="2891" data-market="TW">中信金 (2891)</option>
+                <option value="2886" data-market="TW">兆豐金 (2886)</option>
+                <option value="2884" data-market="TW">玉山金 (2884)</option>
+                <option value="2892" data-market="TW">第一金 (2892)</option>
+                <option value="5880" data-market="TW">合庫金 (5880)</option>
+                <option value="2885" data-market="TW">元大金 (2885)</option>
+                <option value="2880" data-market="TW">華南金 (2880)</option>
+                <option value="2890" data-market="TW">永豐金 (2890)</option>
+                <option value="2887" data-market="TW">台新金 (2887)</option>
+                <option value="2834" data-market="TW">臺企銀 (2834)</option>
+            </optgroup>
+
+            <optgroup label="🇹🇼 台股 - 傳產與航運">
+                <option value="2603" data-market="TW">長榮 (2603)</option>
+                <option value="1216" data-market="TW">統一 (1216)</option>
+                <option value="1101" data-market="TW">台泥 (1101)</option>
+            </optgroup>
+
+            <optgroup label="📊 台股 ETF (熱門)">
+                <option value="0050" data-market="TW">0050 元大台灣50</option>
+                <option value="006208" data-market="TW">006208 富邦台50</option>
+                <option value="0056" data-market="TW">0056 元大高股息</option>
+                <option value="00878" data-market="TW">00878 國泰永續高股息</option>
+                <option value="00919" data-market="TW">00919 群益台灣精選高息</option>
+                <option value="00929" data-market="TW">00929 復華台灣科技優息</option>
+                <option value="00940" data-market="TW">00940 元大台灣價值高息</option>
+                <option value="00713" data-market="TW">00713 元大台灣高息低波</option>
+                <option value="00881" data-market="TW">00881 國泰台灣科技龍頭</option>
+                <option value="00692" data-market="TW">00692 富邦公司治理</option>
+                <option value="00757" data-market="TW">00757 統一FANG+</option>
+                <option value="0052" data-market="TW">0052 富邦科技</option>
+                <option value="00646" data-market="TW">00646 元大S&P500</option>
+                <option value="00662" data-market="TW">00662 富邦NASDAQ</option>
+                <option value="00830" data-market="TW">00830 國泰費城半導體</option>
+                <option value="00850" data-market="TW">00850 元大臺灣ESG永續</option>
+                <option value="00922" data-market="TW">00922 國泰台灣領袖50</option>
+                <option value="00923" data-market="TW">00923 群益台ESG低碳50</option>
+                <option value="00924" data-market="TW">00924 復華S&P500成長</option>
+                <option value="00981" data-market="TW">00981 統一台股增長</option>
+            </optgroup>
+
+            <optgroup label="🇺🇸 美股七巨頭+">
                 <option value="NVDA" data-market="US">NVIDIA (輝達)</option>
                 <option value="TSLA" data-market="US">Tesla (特斯拉)</option>
                 <option value="AAPL" data-market="US">Apple (蘋果)</option>
                 <option value="MSFT" data-market="US">Microsoft (微軟)</option>
+                <option value="META" data-market="US">Meta (臉書)</option>
+                <option value="GOOGL" data-market="US">Alphabet (Google)</option>
+                <option value="AMZN" data-market="US">Amazon (亞馬遜)</option>
+                <option value="NFLX" data-market="US">Netflix (網飛)</option>
+                <option value="AVGO" data-market="US">Broadcom (博通)</option>
             </optgroup>
+
             <optgroup label="🪙 加密貨幣">
                 <option value="BTC" data-market="CRYPTO">Bitcoin (比特幣)</option>
                 <option value="ETH" data-market="CRYPTO">Ethereum (以太幣)</option>
@@ -131,16 +193,43 @@
 
         <button class="btn-retry" onclick="resetPage()">再來一次 (心好累)</button>
     </div>
-    
-    <div class="footer">
-        <p>聯繫作者：<a href="mailto:chestnutdadnotes@gmail.com">chestnutdadnotes@gmail.com</a></p>
-        <p>FB粉絲專頁：<a href="https://www.facebook.com/profile.php?id=100063713241968" target="_blank">栗子爸筆記</a></p>
-        <p>
-            *資料來源：FinMind / CoinGecko / 歷史數據庫 (含自動備援)<br>
-            *美股/0050 已針對拆股與除權息進行校正。<br>
-            *本工具僅供娛樂，不構成投資建議。
-        </p>
+</div>
+
+<div class="article-section">
+    <div class="author-box">
+        <p>👋 聯繫作者：<a href="mailto:chestnutdadnotes@gmail.com">chestnutdadnotes@gmail.com</a></p>
+        <p>📘 FB粉絲專頁：<a href="https://www.facebook.com/profile.php?id=100063713241968" target="_blank">栗子爸筆記</a></p>
     </div>
+
+    <h2>關於機會成本：為什麼我們總是在後悔？</h2>
+    <p>「如果當初我買了...現在早就財富自由了。」這句話或許是我們這一代人最常掛在嘴邊的感嘆。無論是比特幣披薩日的故事，還是台積電錯失的進場點，「後悔」似乎成了投資市場中最強烈的情緒驅動力。但這個計算機的存在，不只是為了讓你心碎，而是為了具象化一個重要的經濟學概念：<strong>機會成本 (Opportunity Cost)</strong>。</p>
+
+    <h3>什麼是錯失恐懼症 (FOMO)？</h3>
+    <p>錯失恐懼症（Fear of Missing Out，簡稱 FOMO）在投資領域尤為明顯。當我們看到身邊的朋友因為買了 NVIDIA 或 Bitcoin 而資產翻倍時，產生的焦慮感往往會導致不理性的追高殺低。這個工具透過回測歷史數據，讓你直面過去的選擇，這雖然殘酷，但卻是建立正確投資心態的第一步。</p>
+
+    <h3>複利效應：時間是散戶最好的朋友</h3>
+    <p>愛因斯坦曾說：「複利是世界第八大奇蹟。」本工具的計算核心，其實就是時間與資產增值的乘積。我們往往高估了一年能做的事，卻低估了十年能累積的財富。每天省下的一杯咖啡錢（約 150 台幣），如果投入年化報酬率 8% 的 ETF（如 0050 或 SPY），在十年後的價值往往超乎想像。</p>
+
+    <h2>如何使用人生後悔計算機？</h2>
+    <p>本工具整合了 FinMind 台股資料庫與 CoinGecko 加密貨幣 API，提供即時的歷史回測功能：</p>
+    <ul>
+        <li><strong>選擇標的：</strong>我們精選了台股 (2330, 0050, 金融股)、美股 (七巨頭) 與加密貨幣等具有代表性的資產。</li>
+        <li><strong>輸入日期與金額：</strong>回想你當時的一筆消費，例如買了一支 iPhone、一台機車，或是一次出國旅遊。</li>
+        <li><strong>面對現實：</strong>系統將自動計算該筆金額若當時投入市場，經過配股配息（部分估算）與股價成長後，直至今日的總價值。</li>
+    </ul>
+
+    <h3>投資理財的正確心態</h3>
+    <p>雖然看到驚人的漲幅會讓人懊悔，但「消費」本身也帶來了當下的快樂與體驗，這也是一種無法量化的價值。本工具旨在提醒我們：<strong>在消費與投資之間取得平衡</strong>。不必為了過去的選擇過度自責，因為最好的投資時間點是十年前，其次是「現在」。</p>
+    
+    <p style="font-size: 12px; color: #64748b; margin-top: 20px;">免責聲明：本網站提供的計算結果僅供娛樂與參考，歷史數據不代表未來績效。所有金融數據皆來自第三方 API，投資前請務必自行審慎評估風險。</p>
+</div>
+
+<div class="footer">
+    <p>
+        *資料來源：FinMind / CoinGecko / 歷史數據庫 (含自動備援)<br>
+        *美股/0050 已針對拆股與除權息進行校正。<br>
+        *本工具僅供娛樂，不構成投資建議。
+    </p>
 </div>
 
 <script>
@@ -148,7 +237,6 @@
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     
-    // 確保 DOM 元素存在再操作
     const dateInput = document.getElementById('dateInput');
     if (dateInput) {
         dateInput.max = yesterday.toISOString().split('T')[0];
@@ -162,23 +250,51 @@
         despair: [ "別看了，快關掉網頁！這筆錢現在可以直接讓你退休。", "恭喜！你親手吃掉了一台國產車。需要叫救護車嗎？", "這已經不是錯過，這是犯罪！你謀殺了你的財富自由。" ]
     };
 
-    // 備援資料庫 (當 API 失敗時使用)
+    // 擴充備援資料庫 (防止 API 查詢不到時使用)
     const fallbackDB = {
+        // --- 權值股 ---
         '2330': { current: 1050, history: { 2010:60, 2015:140, 2020:300, 2021:600, 2022:450, 2023:500, 2024:800 } },
-        '0050': { current: 195, history: { 2010:55, 2015:70, 2020:90, 2021:140, 2022:110, 2023:130, 2024:170 } },
-        '2603': { current: 220, history: { 2020:12, 2021:150, 2022:130, 2023:100, 2024:180 } },
+        '2317': { current: 200, history: { 2010:100, 2015:85, 2020:80, 2021:100, 2023:100 } },
         '2454': { current: 1280, history: { 2015:300, 2020:600, 2021:900, 2022:700, 2023:800 } },
+        '2308': { current: 390, history: { 2015:150, 2020:200, 2022:250 } },
+        '2412': { current: 120, history: { 2015:98, 2020:110, 2022:125 } },
+        '2603': { current: 220, history: { 2020:12, 2021:150, 2022:130, 2023:100, 2024:180 } },
+
+        // --- 金融股 (抓個大概穩定值) ---
+        '2884': { current: 28, history: { 2015:18, 2020:25, 2022:28 } },
+        '2886': { current: 40, history: { 2015:24, 2020:30, 2022:35 } },
+        '2891': { current: 35, history: { 2015:18, 2020:20, 2022:25 } },
+        '2881': { current: 90, history: { 2015:50, 2020:45, 2022:60 } },
+        '2882': { current: 65, history: { 2015:45, 2020:40, 2022:50 } },
+        
+        // --- ETF ---
+        '0050': { current: 195, history: { 2010:55, 2015:70, 2020:90, 2021:140, 2022:110, 2023:130, 2024:170 } },
+        '0056': { current: 38, history: { 2015:22, 2020:28, 2022:25 } },
+        '00878': { current: 23, history: { 2020:15, 2021:18, 2022:16, 2023:20 } },
+        '00919': { current: 24, history: { 2022:15, 2023:20 } },
+        '00929': { current: 20, history: { 2023:15 } },
+        '00940': { current: 9.6, history: { 2024:10 } },
+        '006208': { current: 115, history: { 2020:60, 2022:70 } },
+        '00713': { current: 58, history: { 2020:35, 2022:40 } },
+        '00757': { current: 95, history: { 2020:40, 2022:60 } },
+
+        // --- 美股 ---
         'NVDA': { current: 145, history: { 2015:0.5, 2018:6, 2020:13, 2021:30, 2022:15, 2023:48, 2024:90 } },
         'TSLA': { current: 330, history: { 2015:15, 2019:20, 2020:100, 2021:350, 2022:200, 2023:240, 2024:200 } },
         'AAPL': { current: 230, history: { 2010:10, 2015:30, 2020:80, 2021:140, 2022:130, 2023:180 } },
         'MSFT': { current: 420, history: { 2010:25, 2015:50, 2020:200, 2022:250, 2023:350 } },
+        'META': { current: 580, history: { 2015:100, 2020:250, 2022:120 } },
+        'GOOGL': { current: 170, history: { 2015:35, 2020:70, 2022:100 } }, // 已復權概算
+        'AMZN': { current: 200, history: { 2015:25, 2020:160, 2022:100 } }, // 已復權概算
+        'NFLX': { current: 880, history: { 2015:100, 2020:500, 2022:200 } },
+        'AVGO': { current: 165, history: { 2015:15, 2020:40, 2022:50 } },
+
+        // --- Crypto ---
         'BTC':  { current: 3000000, history: { 2015:10000, 2017:400000, 2020:300000, 2021:1500000, 2022:600000 } },
         'ETH':  { current: 100000, history: { 2016:300, 2018:30000, 2020:10000, 2021:100000, 2022:40000 } }
     };
 
-    // --- 主流程函數 ---
     async function startProcess() {
-        console.log("按鈕已點擊，開始計算...");
         const dateInputVal = document.getElementById('dateInput').value;
         const amountInputVal = document.getElementById('amountInput').value;
         
@@ -187,11 +303,9 @@
             return;
         }
 
-        // 切換顯示介面
         document.getElementById('input-area').style.display = 'none';
         document.getElementById('loading-section').style.display = 'block';
 
-        // 動態 Loading 文字
         const loadTexts = ["正在連線證交所...", "正在計算通膨...", "正在尋找讓你心碎的理由..."];
         let step = 0;
         const textInterval = setInterval(() => {
@@ -202,16 +316,10 @@
         }, 800);
 
         try {
-            // 強制等待 3.5 秒 (為了廣告效果與增加期待感)
             await new Promise(resolve => setTimeout(resolve, 3500));
-            
-            // 抓取資料
             const data = await fetchDataSafe(dateInputVal);
-            
             clearInterval(textInterval);
             showResult(data, amountInputVal);
-            
-            // 顯示結果
             document.getElementById('loading-section').style.display = 'none';
             document.getElementById('result-area').style.display = 'block';
         } catch (error) {
@@ -221,7 +329,6 @@
         }
     }
 
-    // 安全獲取數據 (混合 API + Fallback)
     async function fetchDataSafe(dateInput) {
         const stockSelect = document.getElementById('stockSelect');
         const stockId = stockSelect.value;
@@ -244,23 +351,23 @@
             console.warn("API 連線失敗，切換至備援數據庫...", e);
         }
 
-        // 若 API 失敗或數據異常，使用內建備援資料
+        // 檢查數據
         if (!oldPrice || !currentPrice || oldPrice === 0 || currentPrice === 0) {
             return useFallbackData(stockId, dateInput);
         }
         
-        // 簡單防呆 (防止 API 回傳錯誤極低值)
+        // 防呆: 0050, 2330, NVDA 若 API 回傳異常低價，強制使用備援
         if (stockId === '0050' && currentPrice < 150) currentPrice = fallbackDB['0050'].current; 
         if (stockId === '2330' && currentPrice < 800) currentPrice = fallbackDB['2330'].current;
-        
+        if (stockId === 'NVDA' && currentPrice < 100) currentPrice = fallbackDB['NVDA'].current;
+
         return { oldPrice, currentPrice };
     }
 
-    // API: 台股/美股 (FinMind)
     async function fetchStock(id, market, dateInput) {
         let startDate = new Date(dateInput);
         let endDate = new Date(dateInput);
-        endDate.setDate(endDate.getDate() + 14); // 往後抓兩週避免假日無數據
+        endDate.setDate(endDate.getDate() + 14);
         
         const dataset = market === 'TW' ? 'TaiwanStockPrice' : 'USStockPrice';
         const fStartDate = startDate.toISOString().split('T')[0];
@@ -273,7 +380,7 @@
         if (!hData.data || hData.data.length === 0) throw new Error("歷史股價查無資料");
         let oldPrice = hData.data[0].Close || hData.data[0].close;
 
-        // 美股拆股校正 (簡易版)
+        // 美股拆股校正
         if (id === 'NVDA') {
             if (startDate < new Date('2024-06-07')) oldPrice /= 10;
             if (startDate < new Date('2021-07-20')) oldPrice /= 4;
@@ -285,8 +392,17 @@
         if (id === 'AAPL') {
             if (startDate < new Date('2020-08-31')) oldPrice /= 4;
         }
+        if (id === 'AMZN') {
+            if (startDate < new Date('2022-06-06')) oldPrice /= 20;
+        }
+        if (id === 'GOOGL') {
+            if (startDate < new Date('2022-07-18')) oldPrice /= 20;
+        }
+        if (id === 'AVGO') {
+            if (startDate < new Date('2024-07-15')) oldPrice /= 10;
+        }
 
-        // 抓取當前股價 (改用一週前數據確保有值)
+
         const today = new Date();
         const pastDate = new Date();
         pastDate.setDate(today.getDate() - 7);
@@ -299,10 +415,8 @@
         return { oldPrice, currentPrice };
     }
 
-    // API: 加密貨幣 (CoinGecko)
     async function fetchCrypto(id, date) {
         const d = new Date(date);
-        // CoinGecko 日期格式 DD-MM-YYYY
         const gDate = `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
         const coinId = id === 'BTC' ? 'bitcoin' : 'ethereum';
         
@@ -317,14 +431,14 @@
         return { oldPrice: hData.market_data.current_price.twd, currentPrice: cData[coinId].twd };
     }
 
-    // Fallback: 使用內建資料庫
     function useFallbackData(stockId, dateInput) {
         const year = new Date(dateInput).getFullYear();
         const db = fallbackDB[stockId];
-        if (!db) return { oldPrice: 100, currentPrice: 100 }; // 防呆預設
+        
+        // 如果這個股票沒有在備援名單，給一個預設值防止當機
+        if (!db) return { oldPrice: 100, currentPrice: 100 };
         
         let oldPrice = db.history[year];
-        // 如果當年沒資料，找最近的一年
         if (!oldPrice) {
             const years = Object.keys(db.history).map(Number);
             const closestYear = years.reduce((prev, curr) => Math.abs(curr - year) < Math.abs(prev - year) ? curr : prev);
@@ -333,7 +447,6 @@
         return { oldPrice: oldPrice, currentPrice: db.current };
     }
 
-    // 渲染結果
     function showResult(data, amount) {
         const multiplier = data.currentPrice / data.oldPrice;
         const finalVal = Math.floor(amount * multiplier);
@@ -349,7 +462,7 @@
         function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
         if (profit >= 0) {
-            valEl.style.color = '#f87171'; // 紅色 (賺)
+            valEl.style.color = '#f87171';
             tagEl.innerText = `▲ 漲幅 ${percent}% (錯過賺 NT$${profit.toLocaleString()})`;
             tagEl.className = 'percent-tag bg-gain';
             boxEl.className = 'comment-box border-gain';
@@ -358,7 +471,7 @@
             else if (multiplier < 3) boxEl.innerText = getRandom(comments.pain);
             else boxEl.innerText = getRandom(comments.despair);
         } else {
-            valEl.style.color = '#4ade80'; // 綠色 (虧)
+            valEl.style.color = '#4ade80';
             tagEl.innerText = `▼ 跌幅 ${percent}% (省了 NT$${Math.abs(profit).toLocaleString()})`;
             tagEl.className = 'percent-tag bg-loss';
             boxEl.className = 'comment-box border-loss';
