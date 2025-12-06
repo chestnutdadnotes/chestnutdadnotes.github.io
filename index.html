@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="description" content="人生後悔計算機：精準試算台股、美股、比特幣。揭露機會成本與複利效應的投資心理學工具。">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>人生後悔計算機 - 財富覺醒版</title>
+    <title>人生後悔計算機 - 財富覺醒版 (0050修正版)</title>
     <style>
         /* --- 基礎設定 --- */
         body { font-family: 'Microsoft JhengHei', 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
@@ -258,7 +258,8 @@
             { id: 'META', name: 'Meta 臉書', market: 'US' }, { id: 'GOOGL', name: 'Alphabet Google', market: 'US' },
             { id: 'AMZN', name: 'Amazon 亞馬遜', market: 'US' }, { id: 'NFLX', name: 'Netflix 網飛', market: 'US' },
             { id: 'AVGO', name: 'Broadcom 博通', market: 'US' }, { id: 'AMD', name: 'AMD 超微', market: 'US' },
-            { id: 'INTC', name: 'Intel 英特爾', market: 'US' },
+            { id: 'INTC', name: 'Intel 英特爾', market: 'US' }, { id: 'SMCI', name: 'Super Micro 超微電腦', market: 'US' },
+            { id: 'MSTR', name: 'MicroStrategy 微策略', market: 'US' },
             // Crypto
             { id: 'BTC', name: 'Bitcoin 比特幣', market: 'CRYPTO' }, { id: 'ETH', name: 'Ethereum 以太幣', market: 'CRYPTO' }
         ];
@@ -505,13 +506,30 @@
         if (!hData.data || hData.data.length === 0) throw new Error("歷史股價查無資料");
         let oldPrice = hData.data[0].Close || hData.data[0].close;
 
-        // 拆股校正
-        if (id === 'NVDA') { if (startDate < new Date('2024-06-07')) oldPrice /= 10; if (startDate < new Date('2021-07-20')) oldPrice /= 4; }
-        if (id === 'TSLA') { if (startDate < new Date('2022-08-25')) oldPrice /= 3; if (startDate < new Date('2020-08-31')) oldPrice /= 5; }
-        if (id === 'AAPL') { if (startDate < new Date('2020-08-31')) oldPrice /= 4; }
-        if (id === 'AMZN') { if (startDate < new Date('2022-06-06')) oldPrice /= 20; }
-        if (id === 'GOOGL') { if (startDate < new Date('2022-07-18')) oldPrice /= 20; }
-        if (id === 'AVGO') { if (startDate < new Date('2024-07-15')) oldPrice /= 10; }
+        // --- 拆股校正邏輯 ---
+        const splitEvents = {
+            '0050': [ { date: '2025-06-18', ratio: 4 } ],  // 修正：2025年6月18日進行1拆4
+            'NVDA': [ { date: '2024-06-07', ratio: 10 }, { date: '2021-07-20', ratio: 4 } ],
+            'AVGO': [ { date: '2024-07-15', ratio: 10 } ], 
+            'TSLA': [ { date: '2022-08-25', ratio: 3 }, { date: '2020-08-31', ratio: 5 } ],
+            'AAPL': [ { date: '2020-08-31', ratio: 4 } ],
+            'AMZN': [ { date: '2022-06-06', ratio: 20 } ],
+            'GOOGL': [ { date: '2022-07-18', ratio: 20 } ],
+            'SMCI': [ { date: '2024-10-01', ratio: 10 } ], 
+            'MSTR': [ { date: '2024-08-08', ratio: 10 } ], 
+            'LRCX': [ { date: '2024-10-03', ratio: 10 } ], 
+            'SONY': [ { date: '2024-10-08', ratio: 5 } ],  
+            'NFLX': [ { date: '2015-07-15', ratio: 7 } ]   
+        };
+
+        if (splitEvents[id]) {
+            splitEvents[id].forEach(event => {
+                if (startDate < new Date(event.date)) {
+                    oldPrice /= event.ratio;
+                }
+            });
+        }
+        // ------------------------------------------------
 
         const today = new Date();
         const pastDate = new Date();
